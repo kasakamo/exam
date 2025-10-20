@@ -5,24 +5,39 @@ int cmp_str(void *a, void *b);
 
 void ft_list_remove_if(t_list **begin_list, void *data_ref, int (*cmp)())
 {
-	if (!*begin_list)
-		return ;
 	t_list *cur = *begin_list;
+	t_list *head = NULL;
 	t_list *tmp;
+	if (!begin_list || !*begin_list)
+		return ;
+	while (cur)
+	{
+		if (!(*cmp)(cur->data, data_ref))
+		{
+			tmp = cur->next;
+			if (head == NULL)
+				*begin_list = tmp;
+			else
+				head->next = tmp;
+			free(cur);
+			cur = tmp;
+		}
+		else
+		{
+			head = cur;
+			cur = cur->next;
+		}
+	}
 }
 
 //========================================================================
 
 #include <stdio.h>
+#include <string.h>
 
 int cmp_str(void *a, void *b)
 {
-	char *s1 = (char *)a;
-	char *s2 = (char *)b;
-	int i = 0;
-	while (s1[i] && s2[i] && s1[i] == s2[i])
-		i++;
-	return (s1[i] - s2[i]);
+	return (strcmp((char *)a, (char *)b));
 }
 
 void free_list(t_list *lst)
@@ -43,7 +58,7 @@ void print_list(t_list *lst)
 		printf("%s -> ", (char *)lst->data);
 		lst = lst->next;
 	}
-	printf("NULL");
+	printf("NULL\n");
 }
 
 void list_add_front(t_list **lst, char *str)
@@ -64,7 +79,7 @@ int main()
 	while (i < 5)
 		list_add_front(&lst, tab[i++]);
 	print_list(lst);
-	ft_list_remove_if(lst, "apple", cmp_str);
+	ft_list_remove_if(&lst, "apple", cmp_str);
 	print_list(lst);
 	free_list(lst);
 }
